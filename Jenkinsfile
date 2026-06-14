@@ -17,9 +17,10 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 bat '''
-                taskkill /F /IM node.exe || exit 0
-                start cmd /k "node server.js"
+                taskkill /F /IM node.exe
+                exit /b 0
                 '''
+                bat 'start cmd /k "node server.js"'
             }
         }
     }
