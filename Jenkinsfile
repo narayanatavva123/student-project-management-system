@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Code') {
-            steps {
-                echo 'Code cloned from GitHub'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
@@ -22,7 +16,10 @@ pipeline {
 
         stage('Deploy Application') {
             steps {
-                bat 'start cmd /k "npm start"'
+                bat '''
+                taskkill /F /IM node.exe || exit 0
+                start cmd /k "node server.js"
+                '''
             }
         }
     }
