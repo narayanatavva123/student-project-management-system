@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        PM2_HOME = 'C:\\Users\\Lakshmi Narayana\\.pm2'
+    }
+
     stages {
         stage('Install Dependencies') {
             steps {
