@@ -4,11 +4,25 @@
   <title>Student Project Management System</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
-  <h1>Student Project Management System  for IT</h1>
 
+  <h1>Student Project Management System for IT</h1>
+
+  <!-- 🔐 Google Login Section -->
+  <div id="authSection">
+    <button onclick="googleLogin()" id="loginBtn">
+      Sign in with Google
+    </button>
+
+    <p id="userInfo"></p>
+  </div>
+
+  <hr>
+
+  <!-- 📌 Project Form -->
   <div class="form-box">
     <input type="text" id="studentName" placeholder="Student Name">
     <input type="text" id="title" placeholder="Project Title">
@@ -24,6 +38,7 @@
   </div>
 
   <h2>Project List</h2>
+
   <table>
     <thead>
       <tr>
@@ -34,10 +49,14 @@
         <th>Action</th>
       </tr>
     </thead>
+
     <tbody id="projectTable"></tbody>
   </table>
+
 </div>
 
+<!-- 🚀 Firebase + Script -->
 <script type="module" src="script.js"></script>
+
 </body>
 </html>
