@@ -1,11 +1,35 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD3unsHh302u3B2ih7v4MKdXoW3HhzKxuU",
+  authDomain: "student-project-narayana.firebaseapp.com",
+  projectId: "student-project-narayana",
+  storageBucket: "student-project-narayana.firebasestorage.app",
+  messagingSenderId: "204073185501",
+  appId: "1:204073185501:web:2f41a92293b6af2a192b34",
+  measurementId: "G-BR9H1KGZQQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 async function loadProjects() {
-  const response = await fetch("/api/projects");
-  const projects = await response.json();
+  const querySnapshot = await getDocs(collection(db, "projects"));
 
   const table = document.getElementById("projectTable");
   table.innerHTML = "";
 
-  projects.forEach(project => {
+  querySnapshot.forEach((docItem) => {
+    const project = docItem.data();
+
     table.innerHTML += `
       <tr>
         <td>${project.studentName}</td>
@@ -13,35 +37,31 @@ async function loadProjects() {
         <td>${project.technology}</td>
         <td>${project.status}</td>
         <td>
-          <button class="delete" onclick="deleteProject(${project.id})">Delete</button>
+          <button onclick="deleteProject('${docItem.id}')">
+            Delete
+          </button>
         </td>
       </tr>
     `;
   });
 }
 
-async function addProject() {
+window.addProject = async function () {
   const studentName = document.getElementById("studentName").value;
   const title = document.getElementById("title").value;
   const technology = document.getElementById("technology").value;
   const status = document.getElementById("status").value;
 
-  if (studentName === "" || title === "" || technology === "") {
+  if (!studentName || !title || !technology) {
     alert("Please fill all fields");
     return;
   }
 
-  await fetch("/api/projects", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      studentName,
-      title,
-      technology,
-      status
-    })
+  await addDoc(collection(db, "projects"), {
+    studentName,
+    title,
+    technology,
+    status
   });
 
   document.getElementById("studentName").value = "";
@@ -49,14 +69,11 @@ async function addProject() {
   document.getElementById("technology").value = "";
 
   loadProjects();
-}
+};
 
-async function deleteProject(id) {
-  await fetch(`/api/projects/${id}`, {
-    method: "DELETE"
-  });
-
+window.deleteProject = async function (id) {
+  await deleteDoc(doc(db, "projects", id));
   loadProjects();
-}
+};
 
 loadProjects();
