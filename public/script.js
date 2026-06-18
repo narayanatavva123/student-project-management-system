@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
 import {
   getAuth,
   GoogleAuthProvider,
@@ -45,23 +46,29 @@ window.googleLogin = async function () {
       "Welcome, " + currentUser.displayName;
 
     loadProjects();
+
   } catch (error) {
-    console.log(error);
+    console.error(error);
     alert(error.message);
   }
 };
 
 /* Logout */
 window.logout = async function () {
-  await signOut(auth);
+  try {
+    await signOut(auth);
 
-  document.getElementById("userInfo").innerHTML =
-    "Not Logged In";
+    currentUser = null;
 
-  currentUser = null;
+    document.getElementById("userInfo").innerHTML =
+      "Logged Out";
+
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-/* User State */
+/* Check Login State */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
@@ -133,31 +140,47 @@ window.addProject = async function () {
     return;
   }
 
-  await addDoc(
-    collection(db, "projects"),
-    {
-      studentName,
-      title,
-      technology,
-      status,
-      createdBy: currentUser.email
-    }
-  );
+  try {
 
-  document.getElementById("studentName").value = "";
-  document.getElementById("title").value = "";
-  document.getElementById("technology").value = "";
+    await addDoc(
+      collection(db, "projects"),
+      {
+        studentName,
+        title,
+        technology,
+        status,
+        createdBy: currentUser.email,
+        createdAt: new Date()
+      }
+    );
 
-  loadProjects();
+    document.getElementById("studentName").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("technology").value = "";
+
+    loadProjects();
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 };
 
 /* Delete Project */
 window.deleteProject = async function (id) {
-  await deleteDoc(
-    doc(db, "projects", id)
-  );
 
-  loadProjects();
+  try {
+
+    await deleteDoc(
+      doc(db, "projects", id)
+    );
+
+    loadProjects();
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 };
 
 loadProjects();
