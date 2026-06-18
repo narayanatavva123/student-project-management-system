@@ -1,105 +1,163 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  onAuthStateChanged 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-/* 🔥 Firebase Config (PASTE YOUR VALUES HERE) */
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+/* Firebase Config */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD3unsHh302u3B2ih7v4MKdXoW3HhzKxuU",
+  authDomain: "student-project-narayana.firebaseapp.com",
+  projectId: "student-project-narayana",
+  storageBucket: "student-project-narayana.firebasestorage.app",
+  messagingSenderId: "204073185501",
+  appId: "1:204073185501:web:2f41a92293b6af2a192b34",
+  measurementId: "G-BR9H1KGZQQ"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-/* 🌐 User state */
 let currentUser = null;
 
-/* 🔐 Google Login */
-window.googleLogin = function () {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      currentUser = result.user;
+/* Google Login */
+window.googleLogin = async function () {
+  try {
+    const result = await signInWithPopup(auth, provider);
 
-      document.getElementById("userInfo").innerHTML =
-        "Welcome: " + currentUser.displayName;
+    currentUser = result.user;
 
-      console.log("Logged in user:", currentUser);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    document.getElementById("userInfo").innerHTML =
+      "Welcome, " + currentUser.displayName;
+
+    loadProjects();
+  } catch (error) {
+    console.log(error);
+    alert(error.message);
+  }
 };
 
-/* 👀 Keep user logged in */
+/* Logout */
+window.logout = async function () {
+  await signOut(auth);
+
+  document.getElementById("userInfo").innerHTML =
+    "Not Logged In";
+
+  currentUser = null;
+};
+
+/* User State */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
 
     document.getElementById("userInfo").innerHTML =
-      "Welcome: " + user.displayName;
+      "Welcome, " + user.displayName;
+
+    loadProjects();
   }
 });
 
-/* 📌 Projects storage */
-let projects = JSON.parse(localStorage.getItem("projects")) || [];
+/* Load Projects */
+async function loadProjects() {
+  const table = document.getElementById("projectTable");
 
-/* ➕ Add Project */
-window.addProject = function () {
-  if (!currentUser) {
-    alert("Please login first!");
-    return;
-  }
+  if (!table) return;
 
-  let studentName = document.getElementById("studentName").value;
-  let title = document.getElementById("title").value;
-  let technology = document.getElementById("technology").value;
-  let status = document.getElementById("status").value;
-
-  let project = {
-    studentName,
-    title,
-    technology,
-    status
-  };
-
-  projects.push(project);
-  localStorage.setItem("projects", JSON.stringify(projects));
-
-  renderTable();
-};
-
-/* 📋 Render Table */
-function renderTable() {
-  let table = document.getElementById("projectTable");
   table.innerHTML = "";
 
-  projects.forEach((p, index) => {
+  const querySnapshot = await getDocs(
+    collection(db, "projects")
+  );
+
+  querySnapshot.forEach((docItem) => {
+    const project = docItem.data();
+
     table.innerHTML += `
       <tr>
-        <td>${p.studentName}</td>
-        <td>${p.title}</td>
-        <td>${p.technology}</td>
-        <td>${p.status}</td>
-        <td><button onclick="deleteProject(${index})">Delete</button></td>
+        <td>${project.studentName}</td>
+        <td>${project.title}</td>
+        <td>${project.technology}</td>
+        <td>${project.status}</td>
+        <td>
+          <button onclick="deleteProject('${docItem.id}')">
+            Delete
+          </button>
+        </td>
       </tr>
     `;
   });
 }
 
-/* ❌ Delete */
-window.deleteProject = function (index) {
-  projects.splice(index, 1);
-  localStorage.setItem("projects", JSON.stringify(projects));
-  renderTable();
+/* Add Project */
+window.addProject = async function () {
+
+  if (!currentUser) {
+    alert("Please Login With Google First");
+    return;
+  }
+
+  const studentName =
+    document.getElementById("studentName").value;
+
+  const title =
+    document.getElementById("title").value;
+
+  const technology =
+    document.getElementById("technology").value;
+
+  const status =
+    document.getElementById("status").value;
+
+  if (
+    studentName === "" ||
+    title === "" ||
+    technology === ""
+  ) {
+    alert("Please Fill All Fields");
+    return;
+  }
+
+  await addDoc(
+    collection(db, "projects"),
+    {
+      studentName,
+      title,
+      technology,
+      status,
+      createdBy: currentUser.email
+    }
+  );
+
+  document.getElementById("studentName").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("technology").value = "";
+
+  loadProjects();
 };
 
-renderTable();
+/* Delete Project */
+window.deleteProject = async function (id) {
+  await deleteDoc(
+    doc(db, "projects", id)
+  );
+
+  loadProjects();
+};
+
+loadProjects();

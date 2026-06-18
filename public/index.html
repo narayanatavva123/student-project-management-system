@@ -1,61 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Student Project Management System</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Project Management System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>Student Project Management System for IT</h1>
+    <h1>Student Project Management System for IT</h1>
 
-  <!-- 🔐 Google Login Section -->
-  <div id="authSection">
-    <button onclick="googleLogin()" id="loginBtn">
-      Sign in with Google
-    </button>
+    <!-- Google Authentication -->
+    <div id="authSection">
 
-    <p id="userInfo"></p>
-  </div>
+        <button onclick="googleLogin()" id="loginBtn">
+            Sign In With Google
+        </button>
 
-  <hr>
+        <button onclick="logout()">
+            Logout
+        </button>
 
-  <!-- 📌 Project Form -->
-  <div class="form-box">
-    <input type="text" id="studentName" placeholder="Student Name">
-    <input type="text" id="title" placeholder="Project Title">
-    <input type="text" id="technology" placeholder="Technology Used">
+        <p id="userInfo">Not Logged In</p>
 
-    <select id="status">
-      <option value="Pending">Pending</option>
-      <option value="In Progress">In Progress</option>
-      <option value="Completed">Completed</option>
-    </select>
+    </div>
 
-    <button onclick="addProject()">Add Project</button>
-  </div>
+    <hr>
 
-  <h2>Project List</h2>
+    <!-- Project Form -->
+    <div class="form-box">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Student Name</th>
-        <th>Project Name</th>
-        <th>Technology</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
+        <input
+            type="text"
+            id="studentName"
+            placeholder="Student Name"
+        >
 
-    <tbody id="projectTable"></tbody>
-  </table>
+        <input
+            type="text"
+            id="title"
+            placeholder="Project Title"
+        >
+
+        <input
+            type="text"
+            id="technology"
+            placeholder="Technology Used"
+        >
+
+        <select id="status">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+
+        <button onclick="addProject()">
+            Add Project
+        </button>
+
+    </div>
+
+    <h2>Project List</h2>
+
+    <table border="1" width="100%">
+
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Project Name</th>
+                <th>Technology</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="projectTable">
+
+        </tbody>
+
+    </table>
 
 </div>
 
-<!-- 🚀 Firebase + Script -->
+<!-- Firebase Script -->
 <script type="module" src="script.js"></script>
 
 </body>
